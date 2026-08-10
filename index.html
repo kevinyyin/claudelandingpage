@@ -2,318 +2,434 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Home</title>
 <style>
   :root {
     --bg: #000000;
-    --text: #ffffff;
-    --muted: #9a9a9a;
-    --card-bg: #121212;
-    --card-border: #2c2c2c;
-    --accent: #3399ff;
+    --text: #f5f5f7;
+    --muted: #86868b;
+    --glass: rgba(255,255,255,0.08);
+    --glass-border: rgba(255,255,255,0.14);
+    --hairline: rgba(255,255,255,0.12);
+    --accent: #2997ff;
+    --tile-shadow: rgba(0,0,0,0.45);
   }
+  :root[data-theme="light"] {
+    --bg: #f5f5f7;
+    --text: #1d1d1f;
+    --muted: #6e6e73;
+    --glass: rgba(255,255,255,0.55);
+    --glass-border: rgba(0,0,0,0.06);
+    --hairline: rgba(0,0,0,0.08);
+    --accent: #0071e3;
+    --tile-shadow: rgba(0,0,0,0.14);
+  }
+
   * { box-sizing: border-box; }
+
+  html { -webkit-font-smoothing: antialiased; }
+
   body {
     margin: 0;
     min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     background: var(--bg);
     color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  }
-  main {
-    width: 100%;
-    max-width: 680px;
-    padding: 48px 24px;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    transition: background 0.25s ease, color 0.25s ease;
+    overflow-x: hidden;
   }
 
-  /* --- top row: analog clock / digital clock+greeting / weather --- */
-  .top {
+  /* --- ambient backdrop --- */
+  .ambient {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .ambient span {
+    position: absolute;
+    width: 42vw;
+    height: 42vw;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.22;
+    animation: drift 46s ease-in-out infinite alternate;
+  }
+  :root[data-theme="light"] .ambient span { opacity: 0.16; }
+  .ambient span:nth-child(1) { background: #0a84ff; top: -10%; left: -8%; }
+  .ambient span:nth-child(2) { background: #af52de; bottom: -14%; right: -6%; animation-delay: -14s; }
+  .ambient span:nth-child(3) { background: #00c7be; top: 35%; right: 20%; animation-delay: -28s; }
+  @keyframes drift {
+    from { transform: translate(0, 0) scale(1); }
+    to   { transform: translate(4%, 6%) scale(1.12); }
+  }
+
+  main {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: clamp(56px, 11vh, 120px) 24px 96px;
+  }
+
+  /* --- theme toggle --- */
+  .theme-toggle {
+    position: fixed;
+    top: 22px;
+    right: 22px;
+    z-index: 2;
+    width: 38px;
+    height: 38px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 32px;
-    flex-wrap: wrap;
-    margin-bottom: 40px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 50%;
+    color: var(--text);
+    cursor: pointer;
+    transition: transform 0.15s ease;
   }
-  .analog-clock {
-    flex-shrink: 0;
+  .theme-toggle:hover { transform: scale(1.06); }
+  .theme-toggle:active { transform: scale(0.92); }
+  .theme-toggle svg { width: 18px; height: 18px; }
+
+  /* --- hero --- */
+  .hero {
+    text-align: center;
+    margin-bottom: 44px;
   }
-  .analog-clock circle.face {
-    fill: var(--card-bg);
-    stroke: var(--card-border);
-    stroke-width: 2;
-  }
-  .analog-clock line.tick {
-    stroke: var(--muted);
-    stroke-width: 1.5;
-    stroke-linecap: round;
-  }
-  .analog-clock line.hand {
-    stroke: var(--text);
-    stroke-linecap: round;
-  }
-  .analog-clock line.hour-hand {
-    stroke-width: 4;
-  }
-  .analog-clock line.minute-hand {
-    stroke-width: 3;
-  }
-  .analog-clock line.second-hand {
-    stroke: var(--accent);
-    stroke-width: 1.5;
-  }
-  .analog-clock circle.pin {
-    fill: var(--accent);
-  }
-  .center-block { text-align: center; }
-  #clock {
-    font-size: 2.2rem;
+  .hero-date {
+    font-size: 0.8rem;
     font-weight: 600;
-    letter-spacing: 0.02em;
-    margin-bottom: 4px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
   }
-  #greeting {
+  .hero-time {
+    font-size: clamp(4.2rem, 13vw, 7rem);
+    font-weight: 200;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 10px;
+  }
+  .hero-caption {
     font-size: 1rem;
     color: var(--muted);
   }
-  .weather {
-    text-align: center;
-    min-width: 120px;
+
+  /* --- search --- */
+  .search {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
   }
-  .weather .icon {
-    font-size: 2rem;
-    line-height: 1;
+  .search form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 420px;
+    padding: 13px 18px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 999px;
+    transition: border-color 0.15s ease;
   }
-  .weather .temp {
-    font-size: 1.3rem;
-    font-weight: 600;
-    margin: 4px 0 2px;
+  .search form:focus-within {
+    border-color: var(--accent);
   }
-  .weather .desc,
-  .weather .place {
-    font-size: 0.8rem;
+  .search svg {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+    color: var(--muted);
+  }
+  .search input[type="text"] {
+    flex: 1;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--text);
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+  .search input[type="text"]::placeholder {
     color: var(--muted);
   }
 
   .quote {
     text-align: center;
     font-style: italic;
-    font-size: 1rem;
+    font-size: 0.95rem;
     color: var(--muted);
-    margin: 0 0 40px;
+    margin: 0 0 56px;
     padding: 0 20px;
   }
 
-  /* --- link groups --- */
-  section.group {
-    margin-bottom: 32px;
+  /* --- app groups --- */
+  .groups-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 36px 28px;
   }
-  section.group h2 {
-    font-size: 0.85rem;
+  @media (max-width: 480px) {
+    .groups-grid { grid-template-columns: 1fr; }
+  }
+  .group-label {
+    font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--muted);
-    margin: 0 0 12px;
+    margin: 0 0 16px;
+    padding-left: 2px;
   }
-  ul.links {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 14px;
+  .tiles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
   }
-  ul.links li a {
+  .tile {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
-    text-align: center;
-    padding: 22px 12px;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 12px;
-    color: var(--text);
+    gap: 9px;
+    width: 72px;
     text-decoration: none;
-    font-size: 0.95rem;
-    font-weight: 500;
-    transition: transform 0.12s ease, border-color 0.12s ease;
+    color: var(--text);
   }
-  ul.links li a:hover {
-    border-color: var(--accent);
-    transform: translateY(-2px);
+  .tile-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 14px var(--tile-shadow);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
   }
-  ul.links li a .symbol {
-    font-size: 1.6rem;
-    line-height: 1;
+  .tile-icon svg {
+    width: 26px;
+    height: 26px;
+  }
+  .tile:hover .tile-icon {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px var(--tile-shadow);
+  }
+  .tile:active .tile-icon {
+    transform: scale(0.94);
+  }
+  .tile-label {
+    font-size: 0.75rem;
+    text-align: center;
+    line-height: 1.25;
+    color: var(--muted);
+  }
+  .tile:focus-visible .tile-icon,
+  .theme-toggle:focus-visible,
+  .search form:focus-within {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  /* --- page-load reveal --- */
+  .hero, .search, .quote, .group {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .hero { animation-delay: 0.05s; }
+  .search { animation-delay: 0.15s; }
+  .quote { animation-delay: 0.22s; }
+  .group:nth-of-type(1) { animation-delay: 0.28s; }
+  .group:nth-of-type(2) { animation-delay: 0.34s; }
+  .group:nth-of-type(3) { animation-delay: 0.40s; }
+  .group:nth-of-type(4) { animation-delay: 0.46s; }
+  .group:nth-of-type(5) { animation-delay: 0.52s; }
+  @keyframes rise {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ambient span { animation: none; }
+    .hero, .search, .quote, .group {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+    .tile-icon, .theme-toggle { transition: none; }
   }
 </style>
 </head>
 <body>
+
+<div class="ambient" aria-hidden="true"><span></span><span></span><span></span></div>
+
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode" title="Toggle light/dark mode"></button>
+
 <main>
-  <div class="top">
-    <svg class="analog-clock" width="110" height="110" viewBox="0 0 100 100">
-      <circle class="face" cx="50" cy="50" r="47"/>
-      <g id="ticks"></g>
-      <line id="hourHand" class="hand hour-hand" x1="50" y1="50" x2="50" y2="28"/>
-      <line id="minuteHand" class="hand minute-hand" x1="50" y1="50" x2="50" y2="18"/>
-      <line id="secondHand" class="hand second-hand" x1="50" y1="50" x2="50" y2="14"/>
-      <circle class="pin" cx="50" cy="50" r="2.5"/>
-    </svg>
+  <div class="hero">
+    <div class="hero-date" id="date"></div>
+    <div class="hero-time" id="clock"></div>
+    <div class="hero-caption" id="caption"></div>
+  </div>
 
-    <div class="center-block">
-      <div id="clock"></div>
-      <div id="greeting"></div>
-    </div>
-
-    <div class="weather" id="weather">
-      <div class="icon">🌡️</div>
-      <div class="desc">Loading weather…</div>
-    </div>
+  <div class="search">
+    <form action="https://www.google.com/search" method="GET">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" name="q" placeholder="Search Google or type a URL" autocomplete="off" autofocus>
+    </form>
   </div>
 
   <blockquote class="quote">"Until death, all defeat is psychological."</blockquote>
 
+  <div class="groups-grid">
   <section class="group">
-    <h2>Work</h2>
-    <ul class="links">
-      <li><a href="https://notion.so" target="_blank"><span class="symbol">📝</span>Notion</a></li>
-      <li><a href="https://classroom.google.com" target="_blank"><span class="symbol">🎓</span>Google Classroom</a></li>
-      <li><a href="https://docs.google.com" target="_blank"><span class="symbol">📄</span>Google Docs</a></li>
-    </ul>
+    <h2 class="group-label">Work</h2>
+    <div class="tiles">
+      <a class="tile" href="https://notion.so" target="_blank">
+        <span class="tile-icon" style="background:#3a3a3c">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+        </span>
+        <span class="tile-label">Notion</span>
+      </a>
+      <a class="tile" href="https://classroom.google.com" target="_blank">
+        <span class="tile-icon" style="background:#34c759">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5L2 9Z"/><path d="M6 11.5v3.5c0 1.66 2.69 3 6 3s6-1.34 6-3v-3.5"/><line x1="20" y1="9" x2="20" y2="15.5"/></svg>
+        </span>
+        <span class="tile-label">Classroom</span>
+      </a>
+      <a class="tile" href="https://docs.google.com" target="_blank">
+        <span class="tile-icon" style="background:#0a84ff">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14H7Z"/><path d="M14 3v4h4"/><line x1="9.5" y1="12" x2="14.5" y2="12"/><line x1="9.5" y1="15" x2="14.5" y2="15"/><line x1="9.5" y1="18" x2="12.5" y2="18"/></svg>
+        </span>
+        <span class="tile-label">Docs</span>
+      </a>
+    </div>
   </section>
 
   <section class="group">
-    <h2>Fun</h2>
-    <ul class="links">
-      <li><a href="https://youtube.com" target="_blank"><span class="symbol">▶️</span>YouTube</a></li>
-    </ul>
+    <h2 class="group-label">Fun</h2>
+    <div class="tiles">
+      <a class="tile" href="https://youtube.com" target="_blank">
+        <span class="tile-icon" style="background:#ff3b30">
+          <svg viewBox="0 0 24 24" fill="#fff"><path d="M10 8l7 4-7 4V8Z"/></svg>
+        </span>
+        <span class="tile-label">YouTube</span>
+      </a>
+    </div>
   </section>
 
   <section class="group">
-    <h2>Tools</h2>
-    <ul class="links">
-      <li><a href="https://mail.google.com" target="_blank"><span class="symbol">📧</span>Gmail</a></li>
-      <li><a href="https://claude.ai" target="_blank"><span class="symbol">✳️</span>Claude</a></li>
-    </ul>
+    <h2 class="group-label">Tools</h2>
+    <div class="tiles">
+      <a class="tile" href="https://mail.google.com" target="_blank">
+        <span class="tile-icon" style="background:#ff9500">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+        </span>
+        <span class="tile-label">Gmail</span>
+      </a>
+      <a class="tile" href="https://claude.ai" target="_blank">
+        <span class="tile-icon" style="background:#d97757">
+          <svg viewBox="0 0 24 24" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="4" x2="12" y2="20"/><line x1="12" y1="4" x2="12" y2="20" transform="rotate(60 12 12)"/><line x1="12" y1="4" x2="12" y2="20" transform="rotate(120 12 12)"/></svg>
+        </span>
+        <span class="tile-label">Claude</span>
+      </a>
+    </div>
   </section>
 
   <section class="group">
-    <h2>Countdown</h2>
-    <ul class="links">
-      <li><a href="countdown.html"><span class="symbol">📦</span>Move-In Day</a></li>
-    </ul>
+    <h2 class="group-label">Countdown</h2>
+    <div class="tiles">
+      <a class="tile" href="countdown.html">
+        <span class="tile-icon" style="background:#af52de">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8L12 3 3 8v8l9 5 9-5V8Z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>
+        </span>
+        <span class="tile-label">Move-In Day</span>
+      </a>
+    </div>
   </section>
 
   <section class="group">
-    <h2>Planning</h2>
-    <ul class="links">
-      <li><a href="todo.html"><span class="symbol">✅</span>Weekly To-Do</a></li>
-    </ul>
+    <h2 class="group-label">Planning</h2>
+    <div class="tiles">
+      <a class="tile" href="todo.html">
+        <span class="tile-icon" style="background:#00c7be">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5l1.5 1.5L8 5"/><line x1="11" y1="6.5" x2="20" y2="6.5"/><path d="M4 12.5l1.5 1.5L8 11"/><line x1="11" y1="12.5" x2="20" y2="12.5"/><line x1="4" y1="18.5" x2="8" y2="18.5" opacity="0.5"/><line x1="11" y1="18.5" x2="20" y2="18.5" opacity="0.5"/></svg>
+        </span>
+        <span class="tile-label">Weekly To-Do</span>
+      </a>
+    </div>
   </section>
+  </div>
 </main>
 
 <script>
-  function pad(n) { return n.toString().padStart(2, "0"); }
+  const sunIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><line x1="12" y1="2.5" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="21.5"/><line x1="2.5" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="21.5" y2="12"/><line x1="5" y1="5" x2="6.8" y2="6.8"/><line x1="17.2" y1="17.2" x2="19" y2="19"/><line x1="19" y1="5" x2="17.2" y2="6.8"/><line x1="6.8" y1="17.2" x2="5" y2="19"/></svg>`;
+  const moonIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/></svg>`;
 
-  // --- digital clock + greeting ---
-  function updateDigitalClock() {
+  const themeToggle = document.getElementById("themeToggle");
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    themeToggle.innerHTML = theme === "light" ? sunIcon : moonIcon;
+  }
+  const savedTheme = localStorage.getItem("theme") ||
+    (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+  applyTheme(savedTheme);
+  themeToggle.addEventListener("click", () => {
+    const next = document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
+    localStorage.setItem("theme", next);
+    applyTheme(next);
+  });
+
+  // --- clock + date + greeting ---
+  let greetingText = "";
+  function updateClock() {
     const now = new Date();
     let hours = now.getHours();
-    const minutes = pad(now.getMinutes());
-    const seconds = pad(now.getSeconds());
+    const minutes = now.getMinutes().toString().padStart(2, "0");
     const ampm = hours >= 12 ? "PM" : "AM";
     const displayHours = hours % 12 === 0 ? 12 : hours % 12;
-    document.getElementById("clock").textContent =
-      `${displayHours}:${minutes}:${seconds} ${ampm}`;
+    document.getElementById("clock").textContent = `${displayHours}:${minutes} ${ampm}`;
+    document.getElementById("date").textContent = now.toLocaleDateString("en-US", {
+      weekday: "long", month: "long", day: "numeric"
+    });
 
-    let greeting;
-    if (hours < 12) greeting = "Good morning";
-    else if (hours < 18) greeting = "Good afternoon";
-    else greeting = "Good evening";
-    document.getElementById("greeting").textContent = greeting;
+    if (hours < 12) greetingText = "Good morning";
+    else if (hours < 18) greetingText = "Good afternoon";
+    else greetingText = "Good evening";
+    renderCaption();
   }
 
-  // --- analog clock ---
-  const ticksGroup = document.getElementById("ticks");
-  for (let i = 0; i < 12; i++) {
-    const angle = i * 30;
-    const tick = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    tick.setAttribute("class", "tick");
-    tick.setAttribute("x1", "50");
-    tick.setAttribute("y1", "6");
-    tick.setAttribute("x2", "50");
-    tick.setAttribute("y2", i % 3 === 0 ? "12" : "10");
-    tick.setAttribute("transform", `rotate(${angle} 50 50)`);
-    ticksGroup.appendChild(tick);
+  let weatherText = "";
+  function renderCaption() {
+    document.getElementById("caption").textContent =
+      weatherText ? `${greetingText} · ${weatherText}` : greetingText;
   }
 
-  function updateAnalogClock() {
-    const now = new Date();
-    const hours = now.getHours() % 12;
-    const minutes = now.getMinutes();
-    const seconds = now.getSeconds();
+  updateClock();
+  setInterval(updateClock, 1000);
 
-    const hourAngle = (hours + minutes / 60) * 30;
-    const minuteAngle = (minutes + seconds / 60) * 6;
-    const secondAngle = seconds * 6;
-
-    document.getElementById("hourHand").setAttribute("transform", `rotate(${hourAngle} 50 50)`);
-    document.getElementById("minuteHand").setAttribute("transform", `rotate(${minuteAngle} 50 50)`);
-    document.getElementById("secondHand").setAttribute("transform", `rotate(${secondAngle} 50 50)`);
-  }
-
-  function tick() {
-    updateDigitalClock();
-    updateAnalogClock();
-  }
-  tick();
-  setInterval(tick, 1000);
-
-  // --- weather ---
+  // --- weather (folds into the hero caption; fails silently) ---
   const weatherCodeMap = {
-    0: ["Clear sky", "☀️"],
-    1: ["Mainly clear", "🌤️"],
-    2: ["Partly cloudy", "⛅"],
-    3: ["Overcast", "☁️"],
-    45: ["Foggy", "🌫️"],
-    48: ["Foggy", "🌫️"],
-    51: ["Light drizzle", "🌦️"],
-    53: ["Drizzle", "🌦️"],
-    55: ["Dense drizzle", "🌦️"],
-    61: ["Light rain", "🌧️"],
-    63: ["Rain", "🌧️"],
-    65: ["Heavy rain", "🌧️"],
-    71: ["Light snow", "❄️"],
-    73: ["Snow", "❄️"],
-    75: ["Heavy snow", "❄️"],
-    80: ["Rain showers", "🌦️"],
-    81: ["Rain showers", "🌦️"],
-    82: ["Violent showers", "⛈️"],
-    95: ["Thunderstorm", "⛈️"],
-    96: ["Thunderstorm", "⛈️"],
-    99: ["Thunderstorm", "⛈️"]
+    0: ["Clear", "☀️"], 1: ["Mostly clear", "🌤️"], 2: ["Partly cloudy", "⛅"],
+    3: ["Overcast", "☁️"], 45: ["Foggy", "🌫️"], 48: ["Foggy", "🌫️"],
+    51: ["Drizzle", "🌦️"], 53: ["Drizzle", "🌦️"], 55: ["Drizzle", "🌦️"],
+    61: ["Light rain", "🌧️"], 63: ["Rain", "🌧️"], 65: ["Heavy rain", "🌧️"],
+    71: ["Light snow", "❄️"], 73: ["Snow", "❄️"], 75: ["Heavy snow", "❄️"],
+    80: ["Showers", "🌦️"], 81: ["Showers", "🌦️"], 82: ["Violent showers", "⛈️"],
+    95: ["Thunderstorms", "⛈️"], 96: ["Thunderstorms", "⛈️"], 99: ["Thunderstorms", "⛈️"]
   };
-
-  function showWeatherError(message) {
-    const el = document.getElementById("weather");
-    el.innerHTML = `<div class="icon">🌡️</div><div class="desc">${message}</div>`;
-  }
-
-  function renderWeather(tempF, code, place) {
-    const [desc, icon] = weatherCodeMap[code] || ["Unknown", "🌡️"];
-    const el = document.getElementById("weather");
-    el.innerHTML = `
-      <div class="icon">${icon}</div>
-      <div class="temp">${Math.round(tempF)}°F</div>
-      <div class="desc">${desc}</div>
-      ${place ? `<div class="place">${place}</div>` : ""}
-    `;
-  }
 
   async function loadWeather(lat, lon) {
     try {
@@ -322,31 +438,27 @@
       );
       const weatherData = await weatherRes.json();
       const { temperature, weathercode } = weatherData.current_weather;
+      const [desc, icon] = weatherCodeMap[weathercode] || ["", ""];
 
       let place = "";
       try {
-        const geoRes = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
-        );
+        const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
         const geoData = await geoRes.json();
         place = geoData.address?.city || geoData.address?.town || geoData.address?.village || "";
-      } catch (e) {
-        // reverse geocoding is best-effort; skip place name on failure
-      }
+      } catch (e) {}
 
-      renderWeather(temperature, weathercode, place);
+      weatherText = `${icon} ${Math.round(temperature)}°F${place ? " in " + place : ""}`;
+      renderCaption();
     } catch (e) {
-      showWeatherError("Weather unavailable");
+      // weather is a quiet accent, not essential — fail silently
     }
   }
 
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (pos) => loadWeather(pos.coords.latitude, pos.coords.longitude),
-      () => showWeatherError("Location access denied")
+      () => {}
     );
-  } else {
-    showWeatherError("Geolocation not supported");
   }
 </script>
 </body>
