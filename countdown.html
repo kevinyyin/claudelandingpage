@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Move-In Countdown</title>
+<style>
+  :root {
+    --bg: #000000;
+    --text: #ffffff;
+    --muted: #9a9a9a;
+    --card-bg: #121212;
+    --card-border: #2c2c2c;
+    --accent: #3399ff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  main {
+    width: 100%;
+    max-width: 560px;
+    padding: 48px 24px;
+    text-align: center;
+  }
+  h1 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+  .subtitle {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin: 0 0 40px;
+  }
+  .units {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+  .unit {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px 8px;
+  }
+  .unit .value {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .unit .label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .done {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-top: 20px;
+  }
+  .back {
+    display: inline-block;
+    margin-top: 40px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+  }
+  .back:hover {
+    color: var(--accent);
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Move-In Day</h1>
+  <div class="subtitle">August 18, 2026 · 9:00 AM Eastern</div>
+
+  <div class="units" id="units">
+    <div class="unit">
+      <div class="value" id="days">–</div>
+      <div class="label">Days</div>
+    </div>
+    <div class="unit">
+      <div class="value" id="hours">–</div>
+      <div class="label">Hours</div>
+    </div>
+    <div class="unit">
+      <div class="value" id="minutes">–</div>
+      <div class="label">Minutes</div>
+    </div>
+    <div class="unit">
+      <div class="value" id="seconds">–</div>
+      <div class="label">Seconds</div>
+    </div>
+  </div>
+
+  <div class="done" id="done" style="display:none;">You've moved in! 🎉</div>
+
+  <a class="back" href="index.html">← Back to home</a>
+</main>
+
+<script>
+  // 9:00 AM Eastern on Aug 18, 2026. Eastern is in daylight time (EDT, UTC-4) at that date.
+  const target = new Date("2026-08-18T09:00:00-04:00");
+
+  function update() {
+    const now = new Date();
+    const diff = target - now;
+
+    if (diff <= 0) {
+      document.getElementById("units").style.display = "none";
+      document.getElementById("done").style.display = "block";
+      clearInterval(timer);
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+
+    document.getElementById("days").textContent = days;
+    document.getElementById("hours").textContent = hours;
+    document.getElementById("minutes").textContent = minutes;
+    document.getElementById("seconds").textContent = seconds;
+  }
+
+  update();
+  const timer = setInterval(update, 1000);
+</script>
+</body>
+</html>

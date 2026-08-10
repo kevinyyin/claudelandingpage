@@ -5,12 +5,12 @@
 <title>Home</title>
 <style>
   :root {
-    --bg: #1c1c1e;
-    --text: #f2f2f2;
-    --muted: #a0a0a5;
-    --card-bg: #2a2a2d;
-    --card-border: #3a3a3d;
-    --accent: #6f9bff;
+    --bg: #000000;
+    --text: #ffffff;
+    --muted: #9a9a9a;
+    --card-bg: #121212;
+    --card-border: #2c2c2c;
+    --accent: #3399ff;
   }
   * { box-sizing: border-box; }
   body {
@@ -25,22 +25,89 @@
   }
   main {
     width: 100%;
-    max-width: 640px;
+    max-width: 680px;
     padding: 48px 24px;
   }
+
+  /* --- top row: analog clock / digital clock+greeting / weather --- */
+  .top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+  }
+  .analog-clock {
+    flex-shrink: 0;
+  }
+  .analog-clock circle.face {
+    fill: var(--card-bg);
+    stroke: var(--card-border);
+    stroke-width: 2;
+  }
+  .analog-clock line.tick {
+    stroke: var(--muted);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+  }
+  .analog-clock line.hand {
+    stroke: var(--text);
+    stroke-linecap: round;
+  }
+  .analog-clock line.hour-hand {
+    stroke-width: 4;
+  }
+  .analog-clock line.minute-hand {
+    stroke-width: 3;
+  }
+  .analog-clock line.second-hand {
+    stroke: var(--accent);
+    stroke-width: 1.5;
+  }
+  .analog-clock circle.pin {
+    fill: var(--accent);
+  }
+  .center-block { text-align: center; }
   #clock {
-    text-align: center;
-    font-size: 2.4rem;
+    font-size: 2.2rem;
     font-weight: 600;
     letter-spacing: 0.02em;
     margin-bottom: 4px;
   }
   #greeting {
+    font-size: 1rem;
+    color: var(--muted);
+  }
+  .weather {
     text-align: center;
+    min-width: 120px;
+  }
+  .weather .icon {
+    font-size: 2rem;
+    line-height: 1;
+  }
+  .weather .temp {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 4px 0 2px;
+  }
+  .weather .desc,
+  .weather .place {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .quote {
+    text-align: center;
+    font-style: italic;
     font-size: 1rem;
     color: var(--muted);
     margin: 0 0 40px;
+    padding: 0 20px;
   }
+
+  /* --- link groups --- */
   section.group {
     margin-bottom: 32px;
   }
@@ -61,9 +128,12 @@
     gap: 14px;
   }
   ul.links li a {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
     text-align: center;
-    padding: 18px 12px;
+    padding: 22px 12px;
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: 12px;
@@ -77,34 +147,72 @@
     border-color: var(--accent);
     transform: translateY(-2px);
   }
+  ul.links li a .symbol {
+    font-size: 1.6rem;
+    line-height: 1;
+  }
 </style>
 </head>
 <body>
 <main>
-  <div id="clock"></div>
-  <div id="greeting"></div>
+  <div class="top">
+    <svg class="analog-clock" width="110" height="110" viewBox="0 0 100 100">
+      <circle class="face" cx="50" cy="50" r="47"/>
+      <g id="ticks"></g>
+      <line id="hourHand" class="hand hour-hand" x1="50" y1="50" x2="50" y2="28"/>
+      <line id="minuteHand" class="hand minute-hand" x1="50" y1="50" x2="50" y2="18"/>
+      <line id="secondHand" class="hand second-hand" x1="50" y1="50" x2="50" y2="14"/>
+      <circle class="pin" cx="50" cy="50" r="2.5"/>
+    </svg>
+
+    <div class="center-block">
+      <div id="clock"></div>
+      <div id="greeting"></div>
+    </div>
+
+    <div class="weather" id="weather">
+      <div class="icon">🌡️</div>
+      <div class="desc">Loading weather…</div>
+    </div>
+  </div>
+
+  <blockquote class="quote">"Until death, all defeat is psychological."</blockquote>
 
   <section class="group">
     <h2>Work</h2>
     <ul class="links">
-      <li><a href="https://notion.so" target="_blank">Notion</a></li>
-      <li><a href="https://classroom.google.com" target="_blank">Google Classroom</a></li>
-      <li><a href="https://docs.google.com" target="_blank">Google Docs</a></li>
+      <li><a href="https://notion.so" target="_blank"><span class="symbol">📝</span>Notion</a></li>
+      <li><a href="https://classroom.google.com" target="_blank"><span class="symbol">🎓</span>Google Classroom</a></li>
+      <li><a href="https://docs.google.com" target="_blank"><span class="symbol">📄</span>Google Docs</a></li>
     </ul>
   </section>
 
   <section class="group">
     <h2>Fun</h2>
     <ul class="links">
-      <li><a href="https://youtube.com" target="_blank">YouTube</a></li>
+      <li><a href="https://youtube.com" target="_blank"><span class="symbol">▶️</span>YouTube</a></li>
     </ul>
   </section>
 
   <section class="group">
     <h2>Tools</h2>
     <ul class="links">
-      <li><a href="https://mail.google.com" target="_blank">Gmail</a></li>
-      <li><a href="https://claude.ai" target="_blank">Claude</a></li>
+      <li><a href="https://mail.google.com" target="_blank"><span class="symbol">📧</span>Gmail</a></li>
+      <li><a href="https://claude.ai" target="_blank"><span class="symbol">✳️</span>Claude</a></li>
+    </ul>
+  </section>
+
+  <section class="group">
+    <h2>Countdown</h2>
+    <ul class="links">
+      <li><a href="countdown.html"><span class="symbol">📦</span>Move-In Day</a></li>
+    </ul>
+  </section>
+
+  <section class="group">
+    <h2>Planning</h2>
+    <ul class="links">
+      <li><a href="todo.html"><span class="symbol">✅</span>Weekly To-Do</a></li>
     </ul>
   </section>
 </main>
@@ -112,7 +220,8 @@
 <script>
   function pad(n) { return n.toString().padStart(2, "0"); }
 
-  function update() {
+  // --- digital clock + greeting ---
+  function updateDigitalClock() {
     const now = new Date();
     let hours = now.getHours();
     const minutes = pad(now.getMinutes());
@@ -129,8 +238,116 @@
     document.getElementById("greeting").textContent = greeting;
   }
 
-  update();
-  setInterval(update, 1000);
+  // --- analog clock ---
+  const ticksGroup = document.getElementById("ticks");
+  for (let i = 0; i < 12; i++) {
+    const angle = i * 30;
+    const tick = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    tick.setAttribute("class", "tick");
+    tick.setAttribute("x1", "50");
+    tick.setAttribute("y1", "6");
+    tick.setAttribute("x2", "50");
+    tick.setAttribute("y2", i % 3 === 0 ? "12" : "10");
+    tick.setAttribute("transform", `rotate(${angle} 50 50)`);
+    ticksGroup.appendChild(tick);
+  }
+
+  function updateAnalogClock() {
+    const now = new Date();
+    const hours = now.getHours() % 12;
+    const minutes = now.getMinutes();
+    const seconds = now.getSeconds();
+
+    const hourAngle = (hours + minutes / 60) * 30;
+    const minuteAngle = (minutes + seconds / 60) * 6;
+    const secondAngle = seconds * 6;
+
+    document.getElementById("hourHand").setAttribute("transform", `rotate(${hourAngle} 50 50)`);
+    document.getElementById("minuteHand").setAttribute("transform", `rotate(${minuteAngle} 50 50)`);
+    document.getElementById("secondHand").setAttribute("transform", `rotate(${secondAngle} 50 50)`);
+  }
+
+  function tick() {
+    updateDigitalClock();
+    updateAnalogClock();
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  // --- weather ---
+  const weatherCodeMap = {
+    0: ["Clear sky", "☀️"],
+    1: ["Mainly clear", "🌤️"],
+    2: ["Partly cloudy", "⛅"],
+    3: ["Overcast", "☁️"],
+    45: ["Foggy", "🌫️"],
+    48: ["Foggy", "🌫️"],
+    51: ["Light drizzle", "🌦️"],
+    53: ["Drizzle", "🌦️"],
+    55: ["Dense drizzle", "🌦️"],
+    61: ["Light rain", "🌧️"],
+    63: ["Rain", "🌧️"],
+    65: ["Heavy rain", "🌧️"],
+    71: ["Light snow", "❄️"],
+    73: ["Snow", "❄️"],
+    75: ["Heavy snow", "❄️"],
+    80: ["Rain showers", "🌦️"],
+    81: ["Rain showers", "🌦️"],
+    82: ["Violent showers", "⛈️"],
+    95: ["Thunderstorm", "⛈️"],
+    96: ["Thunderstorm", "⛈️"],
+    99: ["Thunderstorm", "⛈️"]
+  };
+
+  function showWeatherError(message) {
+    const el = document.getElementById("weather");
+    el.innerHTML = `<div class="icon">🌡️</div><div class="desc">${message}</div>`;
+  }
+
+  function renderWeather(tempF, code, place) {
+    const [desc, icon] = weatherCodeMap[code] || ["Unknown", "🌡️"];
+    const el = document.getElementById("weather");
+    el.innerHTML = `
+      <div class="icon">${icon}</div>
+      <div class="temp">${Math.round(tempF)}°F</div>
+      <div class="desc">${desc}</div>
+      ${place ? `<div class="place">${place}</div>` : ""}
+    `;
+  }
+
+  async function loadWeather(lat, lon) {
+    try {
+      const weatherRes = await fetch(
+        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&temperature_unit=fahrenheit`
+      );
+      const weatherData = await weatherRes.json();
+      const { temperature, weathercode } = weatherData.current_weather;
+
+      let place = "";
+      try {
+        const geoRes = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
+        );
+        const geoData = await geoRes.json();
+        place = geoData.address?.city || geoData.address?.town || geoData.address?.village || "";
+      } catch (e) {
+        // reverse geocoding is best-effort; skip place name on failure
+      }
+
+      renderWeather(temperature, weathercode, place);
+    } catch (e) {
+      showWeatherError("Weather unavailable");
+    }
+  }
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => loadWeather(pos.coords.latitude, pos.coords.longitude),
+      () => showWeatherError("Location access denied")
+    );
+  } else {
+    showWeatherError("Geolocation not supported");
+  }
 </script>
 </body>
 </html>
